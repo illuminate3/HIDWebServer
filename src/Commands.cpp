@@ -11,18 +11,23 @@ static vector<pthread_t> sThreads;
 
 #define RFIDLENGTH				256		// String built from the RFID, made by 255 + 1 (tail char, i.e. 0x00)
 
+static int sThreadId = 0;
+
 static void* ThreadCbk(void *pPtr)
 {
 	CHidApi *pHID = (CHidApi *)pPtr;
 	char	RFID[RFIDLENGTH];
-	int		i, Count = 0;
+	int		i, Count = 0, ThreadId;
 	
-	printf("Thread started %p\n", pHID->GetHandle());
+	sThreadId++;
+	ThreadId = sThreadId;
+	printf("Thread %d started, HID=%p\n", ThreadId, pHID->GetHandle());
 
 	// Read a buffer report here. Internally it uses a hid_read
 	// which put the thread in sleep until something is ready to be read
 	while (pHID->ReadReport())
 	{
+		//printf("Thread ID %d\n", ThreadId);
 		// Loop on pHid buffer and paste each valid (i.e. != 0) byte to the RFID
 		for (i = 0; i < USB_BUFFER_DIM; ++i)
 		{
@@ -37,7 +42,7 @@ static void* ThreadCbk(void *pPtr)
 				case 40: // CR
 					RFID[Count] = 0x00;
 					// Dump the RFID
-					printf("%s\n", RFID);
+					printf("%s (ThreadId = %d, Handle=%p)\n", RFID, ThreadId, pHID->GetHandle());
 					// Reset the Counter initing a new RFID string, eventually
 					Count = 0;
 					// Now we have a well cooked RFID ready to be pushed to MySQL

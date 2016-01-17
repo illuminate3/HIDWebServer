@@ -2,8 +2,8 @@
 #include <memory.h>
 #include "CHidApi.h"
 
-#define RFIDREADER_VID	0x8ff
-#define RFIDREADER_PID	0x009
+#define RFIDREADER_VID	0//0x8ff
+#define RFIDREADER_PID	0//0x009
 
 #define USB_BUFFER_LENGTH		65
 
@@ -37,34 +37,36 @@ size_t CHidApi::FindRFIDReadersHids(vector<CHidApi>& HidHandles)
 	
 	pHeadDev = hid_enumerate(RFIDREADER_VID, RFIDREADER_PID);
 	
-#ifdef __DUMP__
+	//#ifdef __DUMP__
 	fprintf(stdout, "FindRFIDReadersHids -> head = %p\n", pHeadDev);
-#endif
+	//#endif
 	
 	pCurrDev = pHeadDev;
 	// Loop on the linked list until the pointer is valid
 	while ( pCurrDev )
 	{
-#ifdef __DUMP__
-		fwprintf(stdout, L"Serial %s\n", pCurrDev->serial_number);
-#endif
+		//#ifdef __DUMP__
+	// Skip vendor_id and product_id on Mac
+		if ( pCurrDev->vendor_id != 0x5ac || pCurrDev->product_id != 0x262 )
+		{ 
+			fwprintf(stdout, L"VendorId = %x, ProductId = %x, Serial = %s\n", pCurrDev->vendor_id, pCurrDev->product_id, pCurrDev->serial_number);
+		//#endif
 		// Try to open the device and assign its pointer
-		pHandle = hid_open(RFIDREADER_VID, RFIDREADER_PID, NULL);
+		pHandle = hid_open_path(pCurrDev->path);
 		if ( pHandle )
 		{
-#ifdef __DUMP__
-			printf("%p: Open successfull\n", pHandle);
-#endif
+			//#ifdef __DUMP__
+			printf("%p: Open successful\n", pHandle);
+			//#endif
 			CHidApi	Handle;
 			Handle.SetHandle(pHandle);
 			// Listen to incoming messages on this channel
 			//while (Handle._ReadReport());			
 			HidHandles.push_back(Handle);
 		}
-#ifdef __DUMP__
 		else
 			printf("Open failed\n");
-#endif
+		}
 		// Get next device
 		pCurrDev = pCurrDev->next;
 	}

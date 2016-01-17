@@ -10,10 +10,10 @@ ifeq ($(UNAME), Linux)
 LDFLAGS=-lmicrohttpd -lhidapi-libusb
 endif
 ifeq ($(UNAME), Darwin)
-LDFLAGS=-lmicrohttpd -lhidapi
+LDFLAGS=-lmicrohttpd -lhidapi -L/usr/local/mysql/lib -lmysqlclient
 endif
 
-INCLUDES=-Isrc/include
+INCLUDES=-Isrc/include -I/usr/local/mysql/include
 CSOURCES=src/WebServer.c
 CXXSOURCES= src/CHidApi.cpp  src/Commands.cpp
 OBJECTS=$(CXXSOURCES:.cpp=.o) $(CSOURCES:.c=.o)
