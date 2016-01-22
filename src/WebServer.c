@@ -941,7 +941,7 @@ void MySQLInit(void)
 	      exit(1);
 	  }
 	
-	  if (mysql_real_connect(con, "localhost", "root", "root_pswd", NULL, 0, NULL, 0) == NULL) 
+	  if (mysql_real_connect(con, "127.0.0.1", "root", "gandalf", NULL, 0, NULL, 0) == NULL) 
 	  {
 	      fprintf(stderr, "%s\n", mysql_error(con));
 	      mysql_close(con);
@@ -986,7 +986,7 @@ main (int argc, char *const *argv)
       return 1;
     }
 	
-  //MySQLInit();
+MySQLInit();
 	
   if ( hid_init() )
 	return 1;
