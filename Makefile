@@ -7,14 +7,14 @@ CXXFLAGS=-c -Wall
 # since we should use autotools instead. We will align it further.
 UNAME := $(shell uname)
 ifeq ($(UNAME), Linux)
-LDFLAGS=-lmicrohttpd -lhidapi-libusb
+LDFLAGS=-lmicrohttpd -lhidapi -libusb
 endif
 ifeq ($(UNAME), Darwin)
 LDFLAGS=-lmicrohttpd -lhidapi -L/usr/local/mysql/lib -lmysqlclient
 endif
 
 INCLUDES=-Isrc/include -I/usr/local/mysql/include
-CSOURCES=src/WebServer.c
+CSOURCES=src/WebServer.c src/RFIDDB.c
 CXXSOURCES= src/CHidApi.cpp  src/Commands.cpp
 OBJECTS=$(CXXSOURCES:.cpp=.o) $(CSOURCES:.c=.o)
 EXECUTABLE=HIDWebServer

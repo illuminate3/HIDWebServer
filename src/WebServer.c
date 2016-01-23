@@ -30,8 +30,7 @@
 #include <microhttpd.h>
 #include "hidapi/hidapi.h"
 #include "Commands.h"
-#include <my_global.h>
-#include <mysql.h>
+#include "RFIDDB.h"
 
 #define TRACE
 
@@ -929,26 +928,6 @@ expire_sessions ()
     }
 }
 
-void MySQLInit(void)
-{
-	printf("MySQL client version: %s\n", mysql_get_client_info());
-	
-	MYSQL *con = mysql_init(NULL);
-
-	  if (con == NULL) 
-	  {
-	      fprintf(stderr, "%s\n", mysql_error(con));
-	      exit(1);
-	  }
-	
-	  if (mysql_real_connect(con, "127.0.0.1", "root", "gandalf", NULL, 0, NULL, 0) == NULL) 
-	  {
-	      fprintf(stderr, "%s\n", mysql_error(con));
-	      mysql_close(con);
-	      exit(1);
-	  } 
-}
-
 //#define TEST
 
 /**
@@ -986,7 +965,7 @@ main (int argc, char *const *argv)
       return 1;
     }
 	
-MySQLInit();
+  MySQLInit();
 	
   if ( hid_init() )
 	return 1;
