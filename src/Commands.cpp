@@ -2,6 +2,7 @@
 #include <pthread.h>
 #include "Commands.h"
 #include "CHidApi.h"
+#include "RFIDDB.h"
 
 // Mutex to avoid multiple commands altogether. Actually the management
 // is not multithreaded from a client POV, but it will eventually turned to be
@@ -68,10 +69,16 @@ static void* ThreadCbk(void *pPtr)
 	return NULL;
 }
 
+// This the connection to the DB we use in the main thread.
+// The connection is kept opened in order to enumerate the TAG table
+// content and deply it to the HTML page via an XML
+static CRFIDDB MainConnect;
 
 void CommandInit(void)
 {
 	pthread_mutex_init(&sCmdMutex, NULL);
+	// Init the DBStuff as well
+	MainConnect.CreateDBAndTable("RFIDDB");	
 }
 
 
