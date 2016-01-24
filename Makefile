@@ -14,8 +14,8 @@ LDFLAGS=-lmicrohttpd -lhidapi -L/usr/local/mysql/lib -lmysqlclient
 endif
 
 INCLUDES=-Isrc/include -I/usr/local/mysql/include
-CSOURCES=src/WebServer.c src/RFIDDB.c
-CXXSOURCES= src/CHidApi.cpp  src/Commands.cpp
+CSOURCES=src/WebServer.c
+CXXSOURCES= src/CHidApi.cpp src/Commands.cpp src/RFIDDB.cpp
 OBJECTS=$(CXXSOURCES:.cpp=.o) $(CSOURCES:.c=.o)
 EXECUTABLE=HIDWebServer
 

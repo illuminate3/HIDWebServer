@@ -30,7 +30,7 @@
 #include <microhttpd.h>
 #include "hidapi/hidapi.h"
 #include "Commands.h"
-#include "RFIDDB.h"
+//#include "RFIDDB.h"
 
 #define TRACE
 
@@ -965,7 +965,7 @@ main (int argc, char *const *argv)
       return 1;
     }
 	
-  MySQLInit();
+  //MySQLInit();
 	
   if ( hid_init() )
 	return 1;
