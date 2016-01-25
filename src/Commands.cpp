@@ -17,13 +17,19 @@ static int sThreadId = 0;
 static void* ThreadCbk(void *pPtr)
 {
 	CHidApi *pHID = (CHidApi *)pPtr;
+	CRFIDDB DBConn;
 	char	RFID[RFIDLENGTH];
 	int		i, Count = 0, ThreadId;
 	
 	sThreadId++;
 	ThreadId = sThreadId;
 	printf("Thread %d started, HID=%p\n", ThreadId, pHID->GetHandle());
-
+	// Open a connection onto the RFIDDB
+	if (!DBConn.Connect(RFIDDB))
+	{
+		printf("ERROR: cannot open a connection on RFIDDB: Exiting Thread");
+		return NULL;
+	}
 	// Read a buffer report here. Internally it uses a hid_read
 	// which put the thread in sleep until something is ready to be read
 	while (pHID->ReadReport())
@@ -46,10 +52,8 @@ static void* ThreadCbk(void *pPtr)
 					printf("%s (ThreadId = %d, Handle=%p)\n", RFID, ThreadId, pHID->GetHandle());
 					// Reset the Counter initing a new RFID string, eventually
 					Count = 0;
-					// Now we have a well cooked RFID ready to be pushed to MySQL
-					//
-					// ...TODO
-					//
+					// Now we have a well cooked RFID ready to be pushed to the RFIDDB
+					DBConn.AddTag(ThreadId, RFID);
 					break;
 				// Put this char within the buffer, after having translated it.
 				// According to hid keyboards, we have '1' == 30, ..., '9' == 38 and '0' == 39
@@ -64,6 +68,7 @@ static void* ThreadCbk(void *pPtr)
 		}
 	}
 	
+	DBConn.Close();
 	printf("Exiting Thread");
 	
 	return NULL;

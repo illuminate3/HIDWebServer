@@ -2,6 +2,9 @@
 #define __RFIDDB_H__
 #include <stddef.h>
 
+// Database name
+#define RFIDDB		"RFIDDB"
+
 class CRFIDDB
 {
 	void *m_pCon;		// We use a void* for the connection to uncouple the DB engine from the client
@@ -16,7 +19,8 @@ public:
 		
 	void CreateDBAndTable	(const char DBName[]);
 	bool Connect			(const char DBName[]);
-	void AddTag				(int Reader, char Tag[]);	
+	void AddTag				(int Reader, char Tag[]);
+	void Close				(void);	
 };
 
 

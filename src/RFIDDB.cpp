@@ -57,18 +57,26 @@ bool CRFIDDB::Connect(const char DBName[])
   if (mysql_real_connect(con, "127.0.0.1", "root", "gandalf", DBName, 0, NULL, 0) == NULL)
 	  return false;
 	 // Finally store it as void* within the class
-	 m_pCon = reinterpret_cast<void*>(con);
+	m_pCon = reinterpret_cast<void*>(con);
 	 
 	 return true;
 }
 
 void CRFIDDB::AddTag(int Reader, char Tag[])
 {
-	sprintf(m_String, "INSERT INTO TAG VALUES(%d,%s,%s)", Reader, Tag, "");
-	mysql_query(reinterpret_cast<MYSQL*>(m_pCon), m_String);
+	sprintf(m_String, "INSERT INTO TAG VALUES(%d,'%s','%s')", Reader, Tag, "");
+	if(mysql_query(reinterpret_cast<MYSQL*>(m_pCon), m_String))
+	{
+		printf("Error on INSERT query");
+		return;
+	}
+	
 }
 
-
+void CRFIDDB::Close(void)
+{
+	mysql_close(reinterpret_cast<MYSQL*>(m_pCon));
+}
 
 
 
