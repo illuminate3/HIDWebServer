@@ -123,8 +123,72 @@ void CmdRecognize(void)
 
 
 
-
-
+/*
+void FillXMLFromMasters(char XMLSnapShot[])
+{ 
+	char Number[16];
+	
+	strcpy(XMLSnapShot, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+	strcat(XMLSnapShot, "<SnapShot>");
+	// Loop on masters and fill the xml
+	vector<CMaster>::const_iterator	const_itor;
+	CSlaves::const_iterator 		Slaves_const_itor;
+	CPins::const_iterator			Pins_const_itor;
+	// Loop on Master entries
+	for ( const_itor = Masters.begin(); const_itor != Masters.end(); ++const_itor )
+	{
+		strcat(XMLSnapShot, "<Master");
+		// Write Master Name as attribute
+		strcat(XMLSnapShot, " Name=\"");
+		strcat(XMLSnapShot, const_itor->GetName().c_str());
+		strcat(XMLSnapShot, "\"");
+		// Write Master Id as attribute
+		strcat(XMLSnapShot, " Id=\"");
+		sprintf(Number, "%d", const_itor->GetId());
+		strcat(XMLSnapShot, Number);
+		strcat(XMLSnapShot, "\">");
+		// Loop on Slaves entries
+		const CSlaves& Slvs = const_itor->GetSlaves();
+		for ( Slaves_const_itor = Slvs.begin(); Slaves_const_itor != Slvs.end(); ++Slaves_const_itor )
+		{
+			strcat(XMLSnapShot, "<Slave");
+			// Write Slave type as attribute
+			strcat(XMLSnapShot, " Type=\"");
+			strcat(XMLSnapShot, (*Slaves_const_itor)->GetTypeString());
+			strcat(XMLSnapShot, "\"");
+			// Write Master Id as attribute
+			strcat(XMLSnapShot, " Id=\"");
+			sprintf(Number, "%d", (*Slaves_const_itor)->GetId());
+			strcat(XMLSnapShot, Number);
+			strcat(XMLSnapShot, "\">");
+			// Loop on Pins entries
+			const CPins& Pins = (*Slaves_const_itor)->GetPins();
+			for ( Pins_const_itor = Pins.begin(); Pins_const_itor != Pins.end(); ++Pins_const_itor )
+			{
+				strcat(XMLSnapShot, "<Pin");
+				// Write Pin type as attribute
+				strcat(XMLSnapShot, " Type=\"");
+				strcat(XMLSnapShot, Pins_const_itor->GetTypeString());
+				strcat(XMLSnapShot, "\"");
+				// Write Master Id as attribute
+				strcat(XMLSnapShot, " Id=\"");
+				sprintf(Number, "%d", Pins_const_itor->GetId());
+				strcat(XMLSnapShot, Number);
+				strcat(XMLSnapShot, "\"></Pin>");
+			}
+			strcat(XMLSnapShot, "</Slave>");			
+		}
+		strcat(XMLSnapShot, "</Master>");
+	}
+	// Add a dummy fps entry, just to test the refresh speed
+	static int Count = 1;
+	char String[256];
+	sprintf(String, "<fps>%d</fps>", Count++);
+	strcat(XMLSnapShot, String);
+	// Close the root
+	strcat(XMLSnapShot, "</SnapShot>\n");
+}
+*/
 
 
 
