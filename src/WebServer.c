@@ -32,7 +32,7 @@
 #include "Commands.h"
 //#include "RFIDDB.h"
 
-#define TRACE
+//#define TRACE
 
 
 #define MASTER_NAME "<?xml version=""1.0"" encoding=""UTF-8""?><Master><Name>n%s</Name></Master>"
@@ -446,7 +446,7 @@ serveSnapShotXML (const void *cls,
   printf("Cmd = %s\n", pValue);
   */
   const char *pCmd = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "Cmd");
-  printf("Cmd = %s\n", pCmd);
+//  printf("Cmd = %s\n", pCmd);
   
   char *pString = malloc(MAXTEXTFILELENGTH);   
 // Dispatch the command
@@ -455,7 +455,7 @@ serveSnapShotXML (const void *cls,
   //sprintf(pString, reply, String);
   //free(reply);
   
-  fprintf(stdout, "%s\n", pString);
+  //fprintf(stdout, "%s\n", pString);
     
   /* return static form */
   response = MHD_create_response_from_buffer (strlen (pString),

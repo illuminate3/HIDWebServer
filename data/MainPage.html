@@ -18,11 +18,11 @@
 //XmlHttpRequest object
 var req = getXmlHttpRequestObject();
 // Main interval to poll HAL status from server
-//var SnapShotInterval = setInterval(getRequestRefresh, 150);
+var SnapShotInterval = setInterval(getRequestRefresh, 1000);
 
 var Seconds = 0;
 var HandlerCounter = 0;
-setInterval(IncreaseFreqCount, 1000);
+//setInterval(IncreaseFreqCount, 1000);
 
 function IncreaseFreqCount()
 {
@@ -84,7 +84,7 @@ function parseState(xmlDoc)
 {
 	if(xmlDoc == null)
 		return;
-	x=xmlDoc.getElementsByTagName("Master");
+	x=xmlDoc.getElementsByTagName("Tag");
 	txt="<table border='1'><tr><th>Type</th><th>ID</th><th>SubType</th><th>Dir.</th><th>Slot</th><th>Value</th><th>Notes</th></tr>";
 	// Check if the master list is empty
 	if ( x.length == 0 )
@@ -100,41 +100,13 @@ function parseState(xmlDoc)
 		{
 			txt=txt + "<tr>";
 			// Type Master
-			txt=txt + "<td>" + "Master" + "</td>";
+			txt=txt + "<td>" + "Tag" + "</td>";
 			xx = x[i].attributes;
 			// 1th child is the Id
             txt=txt + "<td>" + xx[1].firstChild.nodeValue + "</td>";
 			// 0th child is the Name
             txt=txt + "<td>" + xx[0].firstChild.nodeValue + "</td>";
 			txt=txt + "</tr>";
-			// Loop on slaves
-			y = x[i].getElementsByTagName("Slave");
-			for (j=0;j<y.length;j++)
-			{
-				// Type Slave
-				txt=txt + "<tr>";
-				txt=txt + "<td>" + "Slave" + "</td>";
-				yy = y[j].attributes;
-				// 1th child is the Id
-	            txt=txt + "<td>" + yy[1].firstChild.nodeValue + "</td>";
-				// 0th child is the Type
-	            txt=txt + "<td>" + yy[0].firstChild.nodeValue + "</td>";
-				txt=txt + "</tr>";
-				// Loop on pins
-				z = y[j].getElementsByTagName("Pin");
-				for (k=0;k<z.length;k++)
-				{
-					// Type Pin
-					txt=txt + "<tr>";
-					txt=txt + "<td>" + "Pin" + "</td>";
-					zz = z[k].attributes;
-					// 1th child is the Id
-		            txt=txt + "<td>" + zz[1].firstChild.nodeValue + "</td>";
-					// 0th child is the Type
-		            txt=txt + "<td>" + zz[0].firstChild.nodeValue + "</td>";
-					txt=txt + "</tr>";
-				}
-			}
 		}
 	}
     txt=txt + "</table>";

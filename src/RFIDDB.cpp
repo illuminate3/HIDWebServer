@@ -64,6 +64,8 @@ bool CRFIDDB::Connect(const char DBName[])
 
 void CRFIDDB::AddTag(int Reader, char Tag[])
 {
+	if (!m_pCon)
+		return;
 	sprintf(m_String, "INSERT INTO TAG VALUES(%d,'%s','%s')", Reader, Tag, "");
 	if(mysql_query(reinterpret_cast<MYSQL*>(m_pCon), m_String))
 	{
@@ -73,9 +75,49 @@ void CRFIDDB::AddTag(int Reader, char Tag[])
 	
 }
 
+bool CRFIDDB::SelectFromTable(const char TableName[])
+{
+	if (!m_pCon)
+		return false;
+	sprintf(m_String, "SELECT * FROM %s", TableName);
+	if (mysql_query(reinterpret_cast<MYSQL*>(m_pCon), m_String))
+		return false;
+	MYSQL_RES *result = mysql_store_result(reinterpret_cast<MYSQL*>(m_pCon));
+	if (result == NULL)
+		return false;
+	m_nFields = mysql_num_fields(result);
+	m_pResult = reinterpret_cast<void*>(result);
+	return true;
+}
+
+// This should be done after a SelectFromTable call, which prepare the query result
+bool CRFIDDB::GetRowStrings(vector<string>& Strings)
+{
+	if (!m_pResult || !m_nFields)
+		return false;
+	MYSQL_ROW row;
+	if (!(row = mysql_fetch_row(reinterpret_cast<MYSQL_RES*>(m_pResult))))
+		return false;
+	// There's no need to re-allocate the vector, if already full (avoid to waste memory and time)
+	if(Strings.empty())
+	{
+		for (int i = 0; i < m_nFields; ++i)
+		{
+			std::string String(row[i]);
+			Strings.push_back(String);
+		}
+		
+	}
+	else
+		for (int i = 0; i < m_nFields; ++i)
+			Strings[i] = row[i];
+	return true;
+}
+
 void CRFIDDB::Close(void)
 {
-	mysql_close(reinterpret_cast<MYSQL*>(m_pCon));
+	if (m_pCon)
+		mysql_close(reinterpret_cast<MYSQL*>(m_pCon));
 }
 
 

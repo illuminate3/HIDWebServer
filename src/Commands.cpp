@@ -119,66 +119,29 @@ void CmdRecognize(void)
 	}
 }
 
-
-
-
-
-/*
-void FillXMLFromMasters(char XMLSnapShot[])
+void GetXMLSnapShot(char XMLSnapShot[])
 { 
-	char Number[16];
-	
 	strcpy(XMLSnapShot, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 	strcat(XMLSnapShot, "<SnapShot>");
-	// Loop on masters and fill the xml
-	vector<CMaster>::const_iterator	const_itor;
-	CSlaves::const_iterator 		Slaves_const_itor;
-	CPins::const_iterator			Pins_const_itor;
-	// Loop on Master entries
-	for ( const_itor = Masters.begin(); const_itor != Masters.end(); ++const_itor )
+		// Loop on TAG table entries and fill the XML. Use the already open connection to do so.
+	if (!MainConnect.SelectFromTable("TAG"))
+		return;
+	vector<string> Fields;
+	while (MainConnect.GetRowStrings(Fields))
 	{
-		strcat(XMLSnapShot, "<Master");
-		// Write Master Name as attribute
-		strcat(XMLSnapShot, " Name=\"");
-		strcat(XMLSnapShot, const_itor->GetName().c_str());
+		strcat(XMLSnapShot, "<Tag");
+		// Write the Reader Id as attribute
+		strcat(XMLSnapShot, " R=\"");
+		strcat(XMLSnapShot, Fields[0].c_str());
 		strcat(XMLSnapShot, "\"");
-		// Write Master Id as attribute
+		// Write the tag Id as attribute
 		strcat(XMLSnapShot, " Id=\"");
-		sprintf(Number, "%d", const_itor->GetId());
-		strcat(XMLSnapShot, Number);
+		strcat(XMLSnapShot, Fields[1].c_str());
 		strcat(XMLSnapShot, "\">");
-		// Loop on Slaves entries
-		const CSlaves& Slvs = const_itor->GetSlaves();
-		for ( Slaves_const_itor = Slvs.begin(); Slaves_const_itor != Slvs.end(); ++Slaves_const_itor )
-		{
-			strcat(XMLSnapShot, "<Slave");
-			// Write Slave type as attribute
-			strcat(XMLSnapShot, " Type=\"");
-			strcat(XMLSnapShot, (*Slaves_const_itor)->GetTypeString());
-			strcat(XMLSnapShot, "\"");
-			// Write Master Id as attribute
-			strcat(XMLSnapShot, " Id=\"");
-			sprintf(Number, "%d", (*Slaves_const_itor)->GetId());
-			strcat(XMLSnapShot, Number);
-			strcat(XMLSnapShot, "\">");
-			// Loop on Pins entries
-			const CPins& Pins = (*Slaves_const_itor)->GetPins();
-			for ( Pins_const_itor = Pins.begin(); Pins_const_itor != Pins.end(); ++Pins_const_itor )
-			{
-				strcat(XMLSnapShot, "<Pin");
-				// Write Pin type as attribute
-				strcat(XMLSnapShot, " Type=\"");
-				strcat(XMLSnapShot, Pins_const_itor->GetTypeString());
-				strcat(XMLSnapShot, "\"");
-				// Write Master Id as attribute
-				strcat(XMLSnapShot, " Id=\"");
-				sprintf(Number, "%d", Pins_const_itor->GetId());
-				strcat(XMLSnapShot, Number);
-				strcat(XMLSnapShot, "\"></Pin>");
-			}
-			strcat(XMLSnapShot, "</Slave>");			
-		}
-		strcat(XMLSnapShot, "</Master>");
+		// Write the logging time as attribute
+//		strcat(XMLSnapShot, " T=\"");
+//		strcat(XMLSnapShot, "\">");
+		strcat(XMLSnapShot, "</Tag>");
 	}
 	// Add a dummy fps entry, just to test the refresh speed
 	static int Count = 1;
@@ -187,13 +150,8 @@ void FillXMLFromMasters(char XMLSnapShot[])
 	strcat(XMLSnapShot, String);
 	// Close the root
 	strcat(XMLSnapShot, "</SnapShot>\n");
+	printf(XMLSnapShot);
 }
-*/
-
-
-
-
-
 
 void CommandDispatcher(char XMLSnapShot[], const char Cmd[])
 {
@@ -202,7 +160,7 @@ void CommandDispatcher(char XMLSnapShot[], const char Cmd[])
 	if ( !strcmp(Cmd, "Recog") )
 		CmdRecognize();
 	
-	
+	GetXMLSnapShot(XMLSnapShot);	
 	
 	// Finally fill the XML and return it
 //	FillXMLFromMasters(XMLSnapShot);
