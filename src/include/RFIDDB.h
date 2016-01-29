@@ -25,11 +25,11 @@ public:
 	}
 		
 	void CreateDBAndTable(const char DBName[]);
-	bool Connect			(const char DBName[]);
-	void AddTag				(int Reader, char Tag[]);
+	bool Connect		 (const char DBName[]);
+	void AddTag			 (int Reader, const char Tag[], const char Time[]);
 	bool SelectFromTable (const char TableName[]);
-	bool GetRowStrings(vector<string>& Strings);
-	void Close				(void);
+	bool GetRowStrings	 (vector<string>& Strings);
+	void Close			 (void);
 };
 
 

@@ -85,7 +85,7 @@ function parseState(xmlDoc)
 	if(xmlDoc == null)
 		return;
 	x=xmlDoc.getElementsByTagName("Tag");
-	txt="<table border='1'><tr><th>Type</th><th>ID</th><th>SubType</th><th>Dir.</th><th>Slot</th><th>Value</th><th>Notes</th></tr>";
+	txt="<table border='1'><tr><th>Type</th><th>Reader</th><th>Id</th><th>Log Time</th></tr>";
 	// Check if the master list is empty
 	if ( x.length == 0 )
 	{
@@ -103,6 +103,7 @@ function parseState(xmlDoc)
 			txt=txt + "<td>" + "Tag" + "</td>";
 			txt=txt + "<td>" + x[i].getAttribute('R') + "</td>";
 			txt=txt + "<td>" + x[i].getAttribute('Id') + "</td>";
+			txt=txt + "<td>" + x[i].getAttribute('T') + "</td>";
 		}
 	}
     txt=txt + "</table>";

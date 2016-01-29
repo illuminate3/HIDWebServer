@@ -62,11 +62,11 @@ bool CRFIDDB::Connect(const char DBName[])
 	 return true;
 }
 
-void CRFIDDB::AddTag(int Reader, char Tag[])
+void CRFIDDB::AddTag(int Reader, const char Tag[], const char Time[])
 {
 	if (!m_pCon)
 		return;
-	sprintf(m_String, "INSERT INTO TAG VALUES(%d,'%s','%s')", Reader, Tag, "");
+	sprintf(m_String, "INSERT INTO TAG VALUES(%d,'%s','%s')", Reader, Tag, Time);
 	if(mysql_query(reinterpret_cast<MYSQL*>(m_pCon), m_String))
 	{
 		printf("Error on INSERT query");

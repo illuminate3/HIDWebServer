@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 #include <pthread.h>
 #include "Commands.h"
@@ -10,7 +11,7 @@ static pthread_mutex_t sCmdMutex;
 // Threads repository
 static vector<pthread_t> sThreads;
 
-#define RFIDLENGTH				256		// String built from the RFID, made by 255 + 1 (tail char, i.e. 0x00)
+#define STRLENGTH				256		// String built from the RFID, made by 255 + 1 (tail char, i.e. 0x00)
 
 static int sThreadId = 0;
 
@@ -18,7 +19,7 @@ static void* ThreadCbk(void *pPtr)
 {
 	CHidApi *pHID = (CHidApi *)pPtr;
 	CRFIDDB DBConn;
-	char	RFID[RFIDLENGTH];
+	char	RFID[STRLENGTH], Time[STRLENGTH];
 	int		i, Count = 0, ThreadId;
 	
 	sThreadId++;
@@ -30,6 +31,8 @@ static void* ThreadCbk(void *pPtr)
 		printf("ERROR: cannot open a connection on RFIDDB: Exiting Thread");
 		return NULL;
 	}
+	time_t t;
+	struct tm tm;
 	// Read a buffer report here. Internally it uses a hid_read
 	// which put the thread in sleep until something is ready to be read
 	while (pHID->ReadReport())
@@ -49,11 +52,15 @@ static void* ThreadCbk(void *pPtr)
 				case 40: // CR
 					RFID[Count] = 0x00;
 					// Dump the RFID
-					printf("%s (ThreadId = %d, Handle=%p)\n", RFID, ThreadId, pHID->GetHandle());
+					//printf("%s (ThreadId = %d, Handle=%p)\n", RFID, ThreadId, pHID->GetHandle());
 					// Reset the Counter initing a new RFID string, eventually
 					Count = 0;
+					// Get current time
+					t = time(NULL);
+					tm = *localtime(&t);
+					sprintf(Time, "%d-%d-%d %d:%d:%d", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 					// Now we have a well cooked RFID ready to be pushed to the RFIDDB
-					DBConn.AddTag(ThreadId, RFID);
+					DBConn.AddTag(ThreadId, RFID, Time);
 					break;
 				// Put this char within the buffer, after having translated it.
 				// According to hid keyboards, we have '1' == 30, ..., '9' == 38 and '0' == 39
@@ -138,10 +145,11 @@ void GetXMLSnapShot(char XMLSnapShot[])
 		// Write the tag Id as attribute
 		strcat(XMLSnapShot, " Id=\"");
 		strcat(XMLSnapShot, Fields[1].c_str());
-		strcat(XMLSnapShot, "\">");
+		strcat(XMLSnapShot, "\"");
 		// Write the logging time as attribute
-//		strcat(XMLSnapShot, " T=\"");
-//		strcat(XMLSnapShot, "\">");
+		strcat(XMLSnapShot, " T=\"");
+		strcat(XMLSnapShot, Fields[2].c_str());
+		strcat(XMLSnapShot, "\">");
 		strcat(XMLSnapShot, "</Tag>");
 	}
 	// Add a dummy fps entry, just to test the refresh speed
@@ -151,7 +159,7 @@ void GetXMLSnapShot(char XMLSnapShot[])
 	strcat(XMLSnapShot, String);
 	// Close the root
 	strcat(XMLSnapShot, "</SnapShot>\n");
-	printf(XMLSnapShot);
+	//printf(XMLSnapShot);
 }
 
 void CommandDispatcher(char XMLSnapShot[], const char Cmd[])
