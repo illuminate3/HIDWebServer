@@ -128,6 +128,7 @@ void GetXMLSnapShot(char XMLSnapShot[])
 		return;
 	vector<string> Fields;
 	while (MainConnect.GetRowStrings(Fields))
+//	for(int i=1; i<=2; ++i)
 	{
 		strcat(XMLSnapShot, "<Tag");
 		// Write the Reader Id as attribute

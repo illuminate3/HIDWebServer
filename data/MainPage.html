@@ -90,7 +90,7 @@ function parseState(xmlDoc)
 	if ( x.length == 0 )
 	{
 		txt=txt + "<tr>";
-		txt=txt + "<td>" + "NO MASTER!!!" + "</td>";
+		txt=txt + "<td>" + "NO Tags Logged Yet!!!" + "</td>";
 		txt=txt + "</tr>";
 	}
 	else
@@ -101,12 +101,8 @@ function parseState(xmlDoc)
 			txt=txt + "<tr>";
 			// Type Master
 			txt=txt + "<td>" + "Tag" + "</td>";
-			xx = x[i].attributes;
-			// 1th child is the Id
-            txt=txt + "<td>" + xx[1].firstChild.nodeValue + "</td>";
-			// 0th child is the Name
-            txt=txt + "<td>" + xx[0].firstChild.nodeValue + "</td>";
-			txt=txt + "</tr>";
+			txt=txt + "<td>" + x[i].getAttribute('R') + "</td>";
+			txt=txt + "<td>" + x[i].getAttribute('Id') + "</td>";
 		}
 	}
     txt=txt + "</table>";
