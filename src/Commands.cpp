@@ -164,6 +164,9 @@ void GetXMLSnapShot(char XMLSnapShot[])
 
 void CommandDispatcher(char XMLSnapShot[], const char Cmd[])
 {
+	// These mutex could be avoided, since we are using the microwebserver
+	// not in multithreaded mode, so each connection is served sequentially by a queue
+	// but we leave it here to support the webserver in multithreaded mode
 	pthread_mutex_lock(&sCmdMutex);
 	// Switch among commands
 	if ( !strcmp(Cmd, "Recog") )
