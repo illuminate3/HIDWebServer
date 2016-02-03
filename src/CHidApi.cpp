@@ -8,7 +8,7 @@
 #define USB_BUFFER_LENGTH		65
 
 // Uncommented this below to dump communication on console
-//#define __DUMP__
+#define __DUMP__
 
 bool CHidApi::ReadReport(void)
 {
@@ -17,6 +17,9 @@ bool CHidApi::ReadReport(void)
 	if ( !m_pHandle )
 		return false;
 	this->ResetRxData();
+#ifdef __DUMP__
+	fprintf(stdout, "ReadReport before hid_read-> m_pHandle = %p\n", m_pHandle);
+#endif
 	// Since the RX buffer is quite wide, let's read directly within it
 	res = hid_read(m_pHandle, m_USB_RxData, sizeof(m_USB_RxData));
 #ifdef __DUMP__

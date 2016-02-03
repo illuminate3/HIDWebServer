@@ -8,12 +8,14 @@ CXXFLAGS=-c -Wall
 UNAME := $(shell uname)
 ifeq ($(UNAME), Linux)
 LDFLAGS=-lmicrohttpd -lhidapi -libusb
+INCLUDES=-Isrc/include -I/usr/include/mysql
 endif
 ifeq ($(UNAME), Darwin)
 LDFLAGS=-lmicrohttpd -lhidapi -L/usr/local/mysql/lib -lmysqlclient
+INCLUDES=-Isrc/include -I/usr/local/mysql/include
 endif
 
-INCLUDES=-Isrc/include -I/usr/local/mysql/include
+
 CSOURCES=src/WebServer.c
 CXXSOURCES= src/CHidApi.cpp src/Commands.cpp src/RFIDDB.cpp
 OBJECTS=$(CXXSOURCES:.cpp=.o) $(CSOURCES:.c=.o)

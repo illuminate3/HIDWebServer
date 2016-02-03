@@ -5,6 +5,8 @@
 #include "CHidApi.h"
 #include "RFIDDB.h"
 
+#define TRACE
+
 // Mutex to avoid multiple commands altogether. Actually the management
 // is not multithreaded from a client POV, but it will eventually turned to be
 static pthread_mutex_t sCmdMutex;
@@ -37,6 +39,9 @@ static void* ThreadCbk(void *pPtr)
 	// which put the thread in sleep until something is ready to be read
 	while (pHID->ReadReport())
 	{
+#ifdef TRACE
+		printf("Thread %d: ReadReport()\n", ThreadId);
+#endif
 		//printf("Thread ID %d\n", ThreadId);
 		// Loop on pHid buffer and paste each valid (i.e. != 0) byte to the RFID
 		for (i = 0; i < USB_BUFFER_DIM; ++i)
@@ -46,6 +51,9 @@ static void* ThreadCbk(void *pPtr)
 			// we just keep numbers (30 -> 39)and CR (40), discarding all other keys
 			if (pHID->m_USB_RxData[i] >= 30 && pHID->m_USB_RxData[i] <= 40)
 			{
+#ifdef TRACE
+				printf("%c", pHID->m_USB_RxData[i]);
+#endif
 				// If the code is 40dec, the reader just returned a CR, so close current RFID
 				switch (pHID->m_USB_RxData[i])
 				{
@@ -61,6 +69,9 @@ static void* ThreadCbk(void *pPtr)
 					sprintf(Time, "%d-%d-%d %d:%d:%d", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 					// Now we have a well cooked RFID ready to be pushed to the RFIDDB
 					DBConn.AddTag(ThreadId, RFID, Time);
+#ifdef TRACE
+					printf("\nThread %d: Tag Added\n", ThreadId);
+#endif
 					break;
 				// Put this char within the buffer, after having translated it.
 				// According to hid keyboards, we have '1' == 30, ..., '9' == 38 and '0' == 39

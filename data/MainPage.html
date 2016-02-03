@@ -110,7 +110,7 @@ function parseState(xmlDoc)
     document.getElementById('MasterTable').innerHTML=txt;
 	x=xmlDoc.getElementsByTagName("SnapShot");
 	fps=(x[0].getElementsByTagName("fps")[0].childNodes[0].nodeValue);
-	txt="fps: " + fps;
+	txt="Frames: " + fps;
 	document.getElementById("fps").innerHTML=txt;
 }
 
@@ -122,7 +122,6 @@ function parseState(xmlDoc)
 <button onclick="getRequestRecognize();">Recognize</button>
 <div id='MasterTable'></div><br>
 <div id='fps'></div><br>
-Refresh freq:<div id='freq'></div><br>
 First name: <input type="text" name="FirstName" value="Mickey"><br>
 Last name: <input type="text" name="LastName" value="Mouse"><br>
 
