@@ -8,7 +8,7 @@ CXXFLAGS=-c -Wall
 UNAME := $(shell uname)
 ifeq ($(UNAME), Linux)
 //LDFLAGS=-lmicrohttpd -lhidapi -libusb
-LDFLAGS=-lmicrohttpd -lhidapi -L/usr/local/mysql/lib -lmysqlclient
+LDFLAGS=-L/usr/local/lib -lmicrohttpd -lhidapi -L/usr/local/mysql/lib -lmysqlclient
 INCLUDES=-Isrc/include -I/usr/include/mysql
 endif
 ifeq ($(UNAME), Darwin)
