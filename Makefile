@@ -7,7 +7,8 @@ CXXFLAGS=-c -Wall
 # since we should use autotools instead. We will align it further.
 UNAME := $(shell uname)
 ifeq ($(UNAME), Linux)
-LDFLAGS=-lmicrohttpd -lhidapi -libusb
+//LDFLAGS=-lmicrohttpd -lhidapi -libusb
+LDFLAGS=-lmicrohttpd -lhidapi -L/usr/local/mysql/lib -lmysqlclient
 INCLUDES=-Isrc/include -I/usr/include/mysql
 endif
 ifeq ($(UNAME), Darwin)
