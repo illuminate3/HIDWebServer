@@ -26,7 +26,7 @@ static void* ThreadCbk(void *pPtr)
 	
 	sThreadId++;
 	ThreadId = sThreadId;
-	printf("Thread %d started, HID=%p\n", ThreadId, pHID->GetHandle());
+	printf("Thread %d started, pPtr=%p, HID=%p\n", ThreadId, pHID, pHID->GetHandle());
 	// Open a connection onto the RFIDDB
 	if (!DBConn.Connect(RFIDDB))
 	{
@@ -87,7 +87,7 @@ static void* ThreadCbk(void *pPtr)
 	}
 	
 	DBConn.Close();
-	printf("Exiting Thread");
+	printf("Exiting Thread %d\n", ThreadId);
 	
 	return NULL;
 }
@@ -124,13 +124,16 @@ void CmdRecognize(void)
 
 	// Recognize all RFID readers and launch a thread for each of them to do parallel reading
 	CHidApi::FindRFIDReadersHids(HidHandles);
+	printf("HidHandles.Size()==%d\n", HidHandles.size());
 	// Loop on them creating one thread per handle
 	vector<CHidApi>::const_iterator const_itor;
 	for (const_itor = HidHandles.begin(); const_itor != HidHandles.end(); ++const_itor)
 	{
 		pthread_t Thread;
 		// Gives current HidHandle as thread cbk parameter
-		if (!pthread_create(&Thread, NULL, ThreadCbk, (void*)&(*const_itor)))
+		const CHidApi *pPtr = &*const_itor;
+		printf("HidApi * p = %p, pHID=%p\n", pPtr, pPtr->GetHandle());
+		if (!pthread_create(&Thread, NULL, ThreadCbk, (void*)(&*const_itor)))
 			sThreads.push_back(Thread);
 		else
 			printf("ERROR: Fail to create listener Thread!!!");
