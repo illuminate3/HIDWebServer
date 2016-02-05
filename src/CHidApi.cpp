@@ -5,7 +5,6 @@
 #define RFIDREADER_VID	0//0x8ff
 #define RFIDREADER_PID	0//0x009
 
-#define USB_BUFFER_LENGTH		65
 
 // Uncommented this below to dump communication on console
 #define __DUMP__

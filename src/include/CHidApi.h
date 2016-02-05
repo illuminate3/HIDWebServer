@@ -8,7 +8,7 @@
 using namespace std;
 
 
-#define	USB_BUFFER_DIM		8192
+#define	USB_BUFFER_DIM		128
 
 class CHidApi
 {
