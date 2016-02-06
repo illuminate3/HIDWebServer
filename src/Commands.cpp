@@ -183,14 +183,11 @@ void CommandDispatcher(char XMLSnapShot[], const char Cmd[])
 	// not in multithreaded mode, so each connection is served sequentially by a queue
 	// but we leave it here to support the webserver in multithreaded mode
 	pthread_mutex_lock(&sCmdMutex);
-	// Switch among commands
-	if ( !strcmp(Cmd, "Recog") )
-		CmdRecognize();
-	
+	// Switch among commands: TODO
+//	if ( !strcmp(Cmd, "Recog") )
+//		CmdRecognize();
+	// Always returns a DB snapshot
 	GetXMLSnapShot(XMLSnapShot);	
-	
-	// Finally fill the XML and return it
-//	FillXMLFromMasters(XMLSnapShot);
 
 	pthread_mutex_unlock(&sCmdMutex);
 }

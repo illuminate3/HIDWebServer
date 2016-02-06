@@ -1,7 +1,6 @@
 /*
-     This file is part of libmicrohttpd
-     (C) 2011 Christian Grothoff (and other contributing authors)
-
+     This file is part of HIDWebServer
+     (C) Riccardo Ventrella
      This library is free software; you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public
      License as published by the Free Software Foundation; either
@@ -16,12 +15,6 @@
      License along with this library; if not, write to the Free Software
      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-/**
- * @file post_example.c
- * @brief example for processing POST requests using libmicrohttpd
- * @author Christian Grothoff
- */
-
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -30,7 +23,6 @@
 #include <microhttpd.h>
 #include "hidapi/hidapi.h"
 #include "Commands.h"
-//#include "RFIDDB.h"
 
 //#define TRACE
 
@@ -307,32 +299,6 @@ serve_simple_form (const void *cls,
 
 #define HAL1PORT		80		// 1st HAL ALWAYS uses this port by default	
 #define HALPORTBASE		50000	// from 2nd HAL going on, incremental ports from this value are used
-
-/**
- * The typical ports used by HAL instances are:
- * 
- * HAL1 -> 80
- * HAL2 -> 50000
- * HAL3 -> 50001
- * ...
- * 
- * This f() check which of them are in use, returning their numbers.
- * The bind f() is used, since on its failure you can state the port is
- * already used. The f() stops on the very first unused port found.
- */
-/*
-static int EnumerateHALUsedPorts(void)
-{
-	int Count = 0;
-	
-	
-	
-
-
-
-	return Count;
-}
-*/
 
 #define MAXTEXTFILELENGTH	8192
 #define BUFFERLENGTH		 256
@@ -958,13 +924,14 @@ main (int argc, char *const *argv)
   fd_set es;
   MHD_socket max;
   MHD_UNSIGNED_LONG_LONG mhd_timeout;
+  int	 Port;
 
   if (argc != 2)
-    {
-      printf ("%s PORT\n", argv[0]);
-      return 1;
-    }
-	
+	  // No port supplied by command line: default it to 80
+	  Port = 80;
+  else
+	  Port = atoi (argv[1]);
+ 	
   //MySQLInit();
 	
   if ( hid_init() )
@@ -976,7 +943,7 @@ main (int argc, char *const *argv)
   /* initialize PRNG */
   srand ((unsigned int) time (NULL));
   d = MHD_start_daemon (MHD_USE_DEBUG,
-                        atoi (argv[1]),
+                        Port,
                         NULL, NULL,
 			&create_response, NULL,
 			MHD_OPTION_CONNECTION_TIMEOUT, (unsigned int) 15,
