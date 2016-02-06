@@ -5,7 +5,7 @@
 #include "CHidApi.h"
 #include "RFIDDB.h"
 
-#define TRACE
+//#define TRACE
 
 // Mutex to avoid multiple commands altogether. Actually the management
 // is not multithreaded from a client POV, but it will eventually turned to be
@@ -19,14 +19,17 @@ static int sThreadId = 0;
 
 static void* ThreadCbk(void *pPtr)
 {
-	CHidApi *pHID = (CHidApi *)pPtr;
-	CRFIDDB DBConn;
-	char	RFID[STRLENGTH], Time[STRLENGTH];
-	int		i, Count = 0, ThreadId;
+	hid_device *pHID = 	(hid_device *)pPtr;
+	CRFIDDB 			DBConn;
+	CHidApi 			HidApi;
+	char				RFID[STRLENGTH], Time[STRLENGTH];
+	int					i, Count = 0, ThreadId;
+	
+	HidApi.SetHandle(pHID);
 	
 	sThreadId++;
 	ThreadId = sThreadId;
-	printf("Thread %d started, pPtr=%p, HID=%p\n", ThreadId, pHID, pHID->GetHandle());
+	printf("Thread %d started, pHID=%p\n", ThreadId, pHID);
 	// Open a connection onto the RFIDDB
 	if (!DBConn.Connect(RFIDDB))
 	{
@@ -37,7 +40,7 @@ static void* ThreadCbk(void *pPtr)
 	struct tm tm;
 	// Read a buffer report here. Internally it uses a hid_read
 	// which put the thread in sleep until something is ready to be read
-	while (pHID->ReadReport())
+	while (HidApi.ReadReport())
 	{
 #ifdef TRACE
 		printf("Thread %d: ReadReport()\n", ThreadId);
@@ -49,13 +52,13 @@ static void* ThreadCbk(void *pPtr)
 			// WARNING: since the RFID reader is treated as a keyboard, and we
 			// can have many scancode without a unique way to translate them,
 			// we just keep numbers (30 -> 39)and CR (40), discarding all other keys
-			if (pHID->m_USB_RxData[i] >= 30 && pHID->m_USB_RxData[i] <= 40)
+			if (HidApi.m_USB_RxData[i] >= 30 && HidApi.m_USB_RxData[i] <= 40)
 			{
 #ifdef TRACE
-				printf("%c", pHID->m_USB_RxData[i]);
+				printf("%c", HidApi.m_USB_RxData[i]);
 #endif
 				// If the code is 40dec, the reader just returned a CR, so close current RFID
-				switch (pHID->m_USB_RxData[i])
+				switch (HidApi.m_USB_RxData[i])
 				{
 				case 40: // CR
 					RFID[Count] = 0x00;
@@ -79,7 +82,7 @@ static void* ThreadCbk(void *pPtr)
 					RFID[Count++] = 48;
 					break;
 				default: // 1 -> 9
-					RFID[Count++] = pHID->m_USB_RxData[i] + 19;
+					RFID[Count++] = HidApi.m_USB_RxData[i] + 19;
 					break;
 				}
 			}
@@ -120,20 +123,18 @@ void CmdRecognize(void)
 
 		sThreads.empty();
 	}
-	vector<CHidApi> HidHandles;
+	vector<hid_device*> HidHandles;
 
 	// Recognize all RFID readers and launch a thread for each of them to do parallel reading
 	CHidApi::FindRFIDReadersHids(HidHandles);
-	printf("HidHandles.Size()==%d\n", HidHandles.size());
+//	printf("HidHandles.Size()==%d\n", HidHandles.size());
 	// Loop on them creating one thread per handle
-	vector<CHidApi>::const_iterator const_itor;
+	vector<hid_device*>::const_iterator const_itor;
 	for (const_itor = HidHandles.begin(); const_itor != HidHandles.end(); ++const_itor)
 	{
 		pthread_t Thread;
-		// Gives current HidHandle as thread cbk parameter
-		const CHidApi *pPtr = &*const_itor;
-		printf("HidApi * p = %p, pHID=%p\n", pPtr, pPtr->GetHandle());
-		if (!pthread_create(&Thread, NULL, ThreadCbk, (void*)(&*const_itor)))
+		// Gives current hid_device* as thread cbk parameter
+		if (!pthread_create(&Thread, NULL, ThreadCbk, (void*)(*const_itor)))
 			sThreads.push_back(Thread);
 		else
 			printf("ERROR: Fail to create listener Thread!!!");

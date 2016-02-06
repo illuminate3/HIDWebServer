@@ -29,7 +29,7 @@ public:
 	const hid_device* GetHandle(void) const { return m_pHandle; }
 	bool ReadReport	(void);
 	
-	static size_t FindRFIDReadersHids(vector<CHidApi>& Handles);
+	static size_t FindRFIDReadersHids(vector<hid_device*>& Handles);
 };
 
 

@@ -7,7 +7,7 @@
 
 
 // Uncommented this below to dump communication on console
-#define __DUMP__
+//#define __DUMP__
 
 bool CHidApi::ReadReport(void)
 {
@@ -32,7 +32,7 @@ bool CHidApi::ReadReport(void)
 	return ( res > 0 );
 }
 
-size_t CHidApi::FindRFIDReadersHids(vector<CHidApi>& HidHandles)
+size_t CHidApi::FindRFIDReadersHids(vector<hid_device*>& HidHandles)
 {
 	hid_device_info *pHeadDev, *pCurrDev;
 	hid_device		*pHandle;
@@ -60,11 +60,9 @@ size_t CHidApi::FindRFIDReadersHids(vector<CHidApi>& HidHandles)
 			//#ifdef __DUMP__
 			printf("%p: Open successful\n", pHandle);
 			//#endif
-			CHidApi	Handle;
-			Handle.SetHandle(pHandle);
 			// Listen to incoming messages on this channel
 			//while (Handle._ReadReport());			
-			HidHandles.push_back(Handle);
+			HidHandles.push_back(pHandle);
 		}
 		else
 			printf("Open failed\n");

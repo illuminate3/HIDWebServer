@@ -15,7 +15,7 @@ class CRFIDDB
 	void *m_pCon;		// We use a void* for the connection to uncouple the DB engine from the client
 	void *m_pResult;
 	char  m_String[256];
-	int	m_nFields;
+	int	  m_nFields;
 		
 public:
 	// Ctor
