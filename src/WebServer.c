@@ -951,6 +951,7 @@ main (int argc, char *const *argv)
 			MHD_OPTION_END);
   if (NULL == d)
     return 1;
+  printf("HIDWebServer is listening on port %d\n", Port);
   while (1)
     {
       expire_sessions ();
