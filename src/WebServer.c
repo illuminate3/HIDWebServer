@@ -414,9 +414,12 @@ serveSnapShotXML (const void *cls,
   const char *pCmd = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "Cmd");
 //  printf("Cmd = %s\n", pCmd);
   
-  char *pString = malloc(MAXTEXTFILELENGTH);   
+  // The XML is filled up by the CommandDispatcher using a static string object.
+  // Since this is a .c file, we cannot use class objects here, so we basically
+  // extract a char point from it.
+  const char *pString;   
 // Dispatch the command
-  CommandDispatcher(pString, pCmd);
+  CommandDispatcher(&pString, pCmd);
   //strcpy(pString, MASTER_NAME);
   //sprintf(pString, reply, String);
   //free(reply);
@@ -426,7 +429,7 @@ serveSnapShotXML (const void *cls,
   /* return static form */
   response = MHD_create_response_from_buffer (strlen (pString),
 					      (void *) pString,
-					      MHD_RESPMEM_MUST_FREE);				  
+					      MHD_RESPMEM_PERSISTENT);				  
   if (NULL == response)
     return MHD_NO;
   add_session_cookie (session, response);
@@ -470,25 +473,12 @@ serveMasterNameXML (const void *cls,
   const char *pCmd = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "Cmd");
   printf("Cmd = %s\n", pCmd);
   
-  char *pString = malloc(MAXTEXTFILELENGTH);   
-  
-/*   
-  // Just a trial to check something is changing on the page
-  unsigned char buf[256];
-  char String[2048];
-  // Read the master name from USB, if any
-  if ( GetBufferName(buf) < 0 )
-	  strcpy(String, "NO MASTER connected!!!");
-  else
-  {
-	  int i;
-	  for ( i=1;i<256; ++i )
-		  String[i-1] = buf[i];
-  }
-*/  
-	  
-// Dispatch the command
-  CommandDispatcher(pString, pCmd);
+  // The XML is filled up by the CommandDispatcher using a static string object.
+  // Since this is a .c file, we cannot use class objects here, so we basically
+  // extract a char point from it.
+  const char *pString;   
+  // Dispatch the command
+  CommandDispatcher(&pString, pCmd);
   //strcpy(pString, MASTER_NAME);
   //sprintf(pString, reply, String);
   //free(reply);
@@ -498,7 +488,7 @@ serveMasterNameXML (const void *cls,
   /* return static form */
   response = MHD_create_response_from_buffer (strlen (pString),
 					      (void *) pString,
-					      MHD_RESPMEM_MUST_FREE);				  
+					      MHD_RESPMEM_PERSISTENT);				  
   if (NULL == response)
     return MHD_NO;
   add_session_cookie (session, response);

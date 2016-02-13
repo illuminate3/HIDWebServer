@@ -141,10 +141,11 @@ void CmdRecognize(void)
 	}
 }
 
-void GetXMLSnapShot(char XMLSnapShot[])
+void GetXMLSnapShot(const char **ppXMLSnapShot)
 { 
-	strcpy(XMLSnapShot, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-	strcat(XMLSnapShot, "<SnapShot>");
+	static string XMLSnapShot;
+	XMLSnapShot = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+	XMLSnapShot += "<SnapShot>";
 		// Loop on TAG table entries and fill the XML. Use the already open connection to do so.
 	if (!MainConnect.SelectFromTable("TAG"))
 		return;
@@ -152,32 +153,33 @@ void GetXMLSnapShot(char XMLSnapShot[])
 	while (MainConnect.GetRowStrings(Fields))
 //	for(int i=1; i<=2; ++i)
 	{
-		strcat(XMLSnapShot, "<Tag");
+		XMLSnapShot += "<Tag";
 		// Write the Reader Id as attribute
-		strcat(XMLSnapShot, " R=\"");
-		strcat(XMLSnapShot, Fields[0].c_str());
-		strcat(XMLSnapShot, "\"");
+		XMLSnapShot += " R=\"";
+		XMLSnapShot += Fields[0];
+		XMLSnapShot += "\"";
 		// Write the tag Id as attribute
-		strcat(XMLSnapShot, " Id=\"");
-		strcat(XMLSnapShot, Fields[1].c_str());
-		strcat(XMLSnapShot, "\"");
+		XMLSnapShot += " Id=\"";
+		XMLSnapShot += Fields[1];
+		XMLSnapShot += "\"";
 		// Write the logging time as attribute
-		strcat(XMLSnapShot, " T=\"");
-		strcat(XMLSnapShot, Fields[2].c_str());
-		strcat(XMLSnapShot, "\">");
-		strcat(XMLSnapShot, "</Tag>");
+		XMLSnapShot += " T=\"";
+		XMLSnapShot += Fields[2];
+		XMLSnapShot += "\">";
+		XMLSnapShot +=  "</Tag>";
 	}
 	// Add a dummy fps entry, just to test the refresh speed
 	static int Count = 1;
 	char String[256];
 	sprintf(String, "<fps>%d</fps>", Count++);
-	strcat(XMLSnapShot, String);
+	XMLSnapShot += String;
 	// Close the root
-	strcat(XMLSnapShot, "</SnapShot>\n");
+	XMLSnapShot += "</SnapShot>\n";
+	*ppXMLSnapShot = XMLSnapShot.c_str();
 	//printf(XMLSnapShot);
 }
 
-void CommandDispatcher(char XMLSnapShot[], const char Cmd[])
+void CommandDispatcher(const char **ppXMLSnapShot, const char Cmd[])
 {
 	// These mutex could be avoided, since we are using the microwebserver
 	// not in multithreaded mode, so each connection is served sequentially by a queue
@@ -187,7 +189,7 @@ void CommandDispatcher(char XMLSnapShot[], const char Cmd[])
 //	if ( !strcmp(Cmd, "Recog") )
 //		CmdRecognize();
 	// Always returns a DB snapshot
-	GetXMLSnapShot(XMLSnapShot);	
+	GetXMLSnapShot(ppXMLSnapShot);	
 
 	pthread_mutex_unlock(&sCmdMutex);
 }

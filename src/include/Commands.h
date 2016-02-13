@@ -9,7 +9,7 @@ extern "C" {
 void CommandInit(void);
 void CommandQuit(void);
 void CmdRecognize(void);
-void CommandDispatcher(char XMLSnapShot[], const char Cmd[]);
+void CommandDispatcher(const char **ppXMLSnapShot, const char Cmd[]);
 	
 // Decoration to let C++ mocde be used from within plain C modules
 #ifdef __cplusplus
