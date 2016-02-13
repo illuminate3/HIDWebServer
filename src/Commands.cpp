@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <signal.h>
 #include <string.h>
 #include <pthread.h>
 #include "Commands.h"
@@ -12,10 +13,19 @@
 static pthread_mutex_t sCmdMutex;
 // Threads repository
 static vector<pthread_t> sThreads;
+// Handle repository
+static vector<hid_device*> sHidHandles;
 
 #define STRLENGTH				256		// String built from the RFID, made by 255 + 1 (tail char, i.e. 0x00)
 
 static int sThreadId = 0;
+
+// Handler cought by the threads make it suicide
+static void handler(int signum)
+{
+	printf("Thread killed\n");
+	pthread_exit(NULL);
+}
 
 static void* ThreadCbk(void *pPtr)
 {
@@ -89,6 +99,7 @@ static void* ThreadCbk(void *pPtr)
 		}
 	}
 	
+	// This happens when a reader undergoes to a hot unplugging
 	DBConn.Close();
 	printf("Exiting Thread %d\n", ThreadId);
 	
@@ -104,7 +115,9 @@ void CommandInit(void)
 {
 	pthread_mutex_init(&sCmdMutex, NULL);
 	// Init the DBStuff as well
-	MainConnect.CreateDBAndTable("RFIDDB");	
+	MainConnect.CreateDBAndTable("RFIDDB");
+	// Set the handler for managing signal to thread
+	signal(SIGUSR1, handler);
 }
 
 
@@ -116,21 +129,34 @@ void CommandQuit(void)
 
 void CmdRecognize(void)
 {
+	printf("Recognize readers...\n");
 	// If the are threads running, first we have to signal them to kill themselves
 	// and the wait them to join before going on.
 	if (sThreads.size())
 	{
-
-		sThreads.empty();
+		// Send a user signal to each thread to tell them to die
+		vector<pthread_t>::const_iterator threads_citor;
+		for (threads_citor = sThreads.begin(); threads_citor != sThreads.end(); ++threads_citor)
+			pthread_kill(*threads_citor, SIGUSR1);
+		// Wait for threads to join this one
+		for (threads_citor = sThreads.begin(); threads_citor != sThreads.end(); ++threads_citor)
+			pthread_join(*threads_citor, NULL);
+		printf("All threads are killed\n");
+		// Close all handles
+		vector<hid_device*>::const_iterator const_itor;
+		for (const_itor = sHidHandles.begin(); const_itor != sHidHandles.end(); ++const_itor)
+			hid_close(*const_itor);
+		// Finally reset current thread list
+		sThreads.clear();
+		// Reset thread counter
+		sThreadId = 0;
 	}
-	vector<hid_device*> HidHandles;
-
 	// Recognize all RFID readers and launch a thread for each of them to do parallel reading
-	CHidApi::FindRFIDReadersHids(HidHandles);
+	CHidApi::FindRFIDReadersHids(sHidHandles);
 //	printf("HidHandles.Size()==%d\n", HidHandles.size());
 	// Loop on them creating one thread per handle
 	vector<hid_device*>::const_iterator const_itor;
-	for (const_itor = HidHandles.begin(); const_itor != HidHandles.end(); ++const_itor)
+	for (const_itor = sHidHandles.begin(); const_itor != sHidHandles.end(); ++const_itor)
 	{
 		pthread_t Thread;
 		// Gives current hid_device* as thread cbk parameter
@@ -185,9 +211,9 @@ void CommandDispatcher(const char **ppXMLSnapShot, const char Cmd[])
 	// not in multithreaded mode, so each connection is served sequentially by a queue
 	// but we leave it here to support the webserver in multithreaded mode
 	pthread_mutex_lock(&sCmdMutex);
-	// Switch among commands: TODO
-//	if ( !strcmp(Cmd, "Recog") )
-//		CmdRecognize();
+	// Switch among commands:
+	if ( !strcmp(Cmd, "Recog") )
+		CmdRecognize();
 	// Always returns a DB snapshot
 	GetXMLSnapShot(ppXMLSnapShot);	
 

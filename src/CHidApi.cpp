@@ -37,6 +37,8 @@ size_t CHidApi::FindRFIDReadersHids(vector<hid_device*>& HidHandles)
 	hid_device_info *pHeadDev, *pCurrDev;
 	hid_device		*pHandle;
 	
+	HidHandles.clear();
+	
 	pHeadDev = hid_enumerate(RFIDREADER_VID, RFIDREADER_PID);
 	
 	//#ifdef __DUMP__
