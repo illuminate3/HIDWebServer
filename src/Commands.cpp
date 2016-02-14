@@ -150,6 +150,9 @@ void CmdRecognize(void)
 		sThreads.clear();
 		// Reset thread counter
 		sThreadId = 0;
+		// Since after recognition the Readers can be recognized
+		// in a different order than before, we reset the TAG table within the DB
+		MainConnect.EmptyTable("TAG");
 	}
 	// Recognize all RFID readers and launch a thread for each of them to do parallel reading
 	CHidApi::FindRFIDReadersHids(sHidHandles);

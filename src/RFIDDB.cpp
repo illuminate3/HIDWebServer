@@ -114,6 +114,16 @@ bool CRFIDDB::GetRowStrings(vector<string>& Strings)
 	return true;
 }
 
+bool CRFIDDB::EmptyTable(const char TableName[])
+{
+	if (!m_pCon)
+		return false;
+	sprintf(m_String, "TRUNCATE TABLE %s", TableName);
+	if (mysql_query(reinterpret_cast<MYSQL*>(m_pCon), m_String))
+		return false;
+	return true;
+}
+
 void CRFIDDB::Close(void)
 {
 	if (m_pCon)

@@ -29,6 +29,7 @@ public:
 	void AddTag			 (int Reader, const char Tag[], const char Time[]);
 	bool SelectFromTable (const char TableName[]);
 	bool GetRowStrings	 (vector<string>& Strings);
+	bool EmptyTable		 (const char TableName[]);
 	void Close			 (void);
 };
 
