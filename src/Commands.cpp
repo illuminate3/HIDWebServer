@@ -18,7 +18,11 @@ static vector<hid_device*> sHidHandles;
 
 #define STRLENGTH				256		// String built from the RFID, made by 255 + 1 (tail char, i.e. 0x00)
 
-static int sThreadId = 0;
+static int sThreadCount = 0;
+// The above sThreadCount is shared between the main thread and the reader threads.
+// We create a dedicated Mutex to avoid conflicts during its read/write.
+static pthread_mutex_t sThreadCountMutex;
+
 
 // Handler cought by the threads make it suicide
 static void handler(int signum)
@@ -36,9 +40,12 @@ static void* ThreadCbk(void *pPtr)
 	int					i, Count = 0, ThreadId;
 	
 	HidApi.SetHandle(pHID);
+	// Protect the sThreadCount management by the dedicated mutex	
+	pthread_mutex_lock(&sThreadCountMutex);
+	sThreadCount++;
+	ThreadId = sThreadCount;
+	pthread_mutex_unlock(&sThreadCountMutex);
 	
-	sThreadId++;
-	ThreadId = sThreadId;
 	printf("Thread %d started, pHID=%p\n", ThreadId, pHID);
 	// Open a connection onto the RFIDDB
 	if (!DBConn.Connect(RFIDDB))
@@ -102,7 +109,11 @@ static void* ThreadCbk(void *pPtr)
 	// This happens when a reader undergoes to a hot unplugging
 	DBConn.Close();
 	printf("Exiting Thread %d\n", ThreadId);
-	
+	// Decrease the number of Threads, protecting its access by the dedicated mutex
+	pthread_mutex_lock(&sThreadCountMutex);
+	sThreadCount--;
+	pthread_mutex_unlock(&sThreadCountMutex);
+		
 	return NULL;
 }
 
@@ -114,6 +125,7 @@ static CRFIDDB MainConnect;
 void CommandInit(void)
 {
 	pthread_mutex_init(&sCmdMutex, NULL);
+	pthread_mutex_init(&sThreadCountMutex, NULL);
 	// Init the DBStuff as well
 	MainConnect.CreateDBAndTable("RFIDDB");
 	// Set the handler for managing signal to thread
@@ -124,6 +136,7 @@ void CommandInit(void)
 void CommandQuit(void)
 {
 	pthread_mutex_destroy(&sCmdMutex);
+	pthread_mutex_destroy(&sThreadCountMutex);
 }
 
 
@@ -148,8 +161,9 @@ void CmdRecognize(void)
 			hid_close(*const_itor);
 		// Finally reset current thread list
 		sThreads.clear();
-		// Reset thread counter
-		sThreadId = 0;
+		// Reset thread counter. Since there's no more Threads writing on it, we can reset it
+		// without loking it with the mutex
+		sThreadCount = 0;
 		// Since after recognition the Readers can be recognized
 		// in a different order than before, we reset the TAG table within the DB
 		MainConnect.EmptyTable("TAG");
@@ -197,9 +211,15 @@ void GetXMLSnapShot(const char **ppXMLSnapShot)
 		XMLSnapShot += "\">";
 		XMLSnapShot +=  "</Tag>";
 	}
+	char String[256];
+	// Dump current number of HID readers (i.e. Threads)
+	// Protect its access by the dedicated mutex
+	pthread_mutex_lock(&sThreadCountMutex);
+	sprintf(String, "<Rds>%d</Rds>", sThreadCount);
+	pthread_mutex_unlock(&sThreadCountMutex);
+	XMLSnapShot += String;
 	// Add a dummy fps entry, just to test the refresh speed
 	static int Count = 1;
-	char String[256];
 	sprintf(String, "<fps>%d</fps>", Count++);
 	XMLSnapShot += String;
 	// Close the root

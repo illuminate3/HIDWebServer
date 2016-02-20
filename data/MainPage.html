@@ -84,6 +84,12 @@ function parseState(xmlDoc)
 {
 	if(xmlDoc == null)
 		return;
+	// Fill number of readers
+	x=xmlDoc.getElementsByTagName("SnapShot");
+	Rds=(x[0].getElementsByTagName("Rds")[0].childNodes[0].nodeValue);
+	txt="Number or readers: " + Rds;
+	document.getElementById("Rds").innerHTML=txt;
+	// Fill the main table
 	x=xmlDoc.getElementsByTagName("Tag");
 	txt="<table border='1'><tr><th>Type</th><th>Reader</th><th>Id</th><th>Log Time</th></tr>";
 	// Check if the master list is empty
@@ -108,6 +114,7 @@ function parseState(xmlDoc)
 	}
     txt=txt + "</table>";
     document.getElementById('MasterTable').innerHTML=txt;
+	// Fill the number of frames
 	x=xmlDoc.getElementsByTagName("SnapShot");
 	fps=(x[0].getElementsByTagName("fps")[0].childNodes[0].nodeValue);
 	txt="Frames: " + fps;
@@ -120,6 +127,7 @@ function parseState(xmlDoc)
 <body>
 
 <button onclick="getRequestRecognize();">Recognize</button>
+<div id='Rds'></div><br>
 <div id='MasterTable'></div><br>
 <div id='fps'></div><br>
 First name: <input type="text" name="FirstName" value="Mickey"><br>

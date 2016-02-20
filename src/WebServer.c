@@ -457,19 +457,6 @@ serveMasterNameXML (const void *cls,
   //char *reply;
   struct MHD_Response *response;
    
-/*   
-  reply = malloc(MAXTEXTFILELENGTH);
-  if (NULL == reply)
-    return MHD_NO;
-        
-		
-  if ( !ReadTextFileIntoString(reply, "data/MasterName.xml") )
-  {
-	  fprintf(stdout, "Failed");
-    return MHD_NO;
-  }
-*/
-  
   const char *pCmd = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "Cmd");
   printf("Cmd = %s\n", pCmd);
   
